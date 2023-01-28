@@ -53,7 +53,6 @@ if mf_margin_1 < mf_margin_2:
 			print(f" The voltage regulation is\t\t\t\t: {VR} %")
 			break
 		else:
-			print(VR)
 			not_selected.append(conductor_data['selected_conductor'])
 
 
