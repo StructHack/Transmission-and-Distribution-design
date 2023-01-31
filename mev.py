@@ -56,7 +56,14 @@ if mf_margin_1 < mf_margin_2:
 			not_selected.append(conductor_data['selected_conductor'])
 	
 	#print the tower
-	print_the_tower(clearance)
+	# print_the_tower(clearance)
+
+	for x in conductor:
+		LC = calculate_LC(clearance, x, full_data['length'], 2)
+		R_65 = conductor[x]['resistance']* full_data['length'] * (1 + 0.004 * (65-20) ) 
+		VR = calculate_VR(LC['L'], LC['C'], R_65, full_data['2'],full_data['power'],2, full_data['length'])
+		conductor[x]['VR'] = VR
+	print(conductor) 
 
 
 	
@@ -81,4 +88,10 @@ else:
 			break
 		else:
 			not_selected.append(conductor_data['selected_conductor'])
+	for x in conductor:
+		LC = calculate_LC(clearance, x, full_data['length'], 2)
+		R_65 = conductor[x]['resistance']* full_data['length'] * (1 + 0.004 * (65-20) ) 
+		VR = calculate_VR(LC['L'], LC['C'], R_65, full_data['2'],full_data['power'],2, full_data['length'])
+		conductor[x]['VR'] = VR
+	print(conductor) 
 
