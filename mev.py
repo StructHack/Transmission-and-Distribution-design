@@ -54,6 +54,9 @@ if mf_margin_1 < mf_margin_2:
 			break
 		else:
 			not_selected.append(conductor_data['selected_conductor'])
+	
+	#print the tower
+	print_the_tower(clearance)
 
 
 	
