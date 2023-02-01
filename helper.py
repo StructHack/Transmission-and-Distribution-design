@@ -68,7 +68,7 @@ def calculate_clearance(data, Nc):
     print(f' Horizontal separation between conductor [c]\t\t: {c} cm')
     print(f' Vertical spacing between conductors [y]\t\t: {round(y,3)} cm')
     print(f' Height of earth wire from top most conductor [d]\t: {round(d,3)} cm')
-    return {'a':a,'cl':cl,'l':l,'b':b,'c':c,'y':y,'d':d}
+    return {'a':round(a, 2),'cl':round(cl,2),'l':round(l,2),'b':round(b,2),'c':round(c,2),'y':round(y,2),'d':round(d,2)}
 
 def calculate_disc(MEV):
   NAC = 1.1
@@ -278,6 +278,19 @@ def calculate_VR(L, C, R, full_data, power, Nc, length):
     VR = (abs(Vs_fl)/abs(A) - Vr_fl)/Vr_fl
     VR = VR * 100
     return round(VR,3)
+
+def calculate_efficiency(Power, voltage,length, Nc,conductor_name):
+    phase_angle = 0.9
+    current = (Power * 10**3) / (math.sqrt(3)*voltage*phase_angle*Nc)
+    current_angle = -math.acos(phase_angle)
+    current_rect = cmath.rect(current, current_angle)
+    current_polar = cmath.polar(current_rect)
+    R_20 = conductor[conductor_name]['resistance'] * length
+    R_65 = R_20 * (1 + 0.004 * (65-20) ) 
+    power_loss = (3 * current**2 * Nc * R_65) / 10**6
+    efficiency = 1 - power_loss/Power
+    return round(efficiency * 100, 2)
+
 
 def print_the_tower(obj):
 

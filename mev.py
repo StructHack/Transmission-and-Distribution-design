@@ -56,14 +56,21 @@ if mf_margin_1 < mf_margin_2:
 			not_selected.append(conductor_data['selected_conductor'])
 	
 	#print the tower
-	# print_the_tower(clearance)
-
+	print_the_tower(clearance)
+	print('='*80)
 	for x in conductor:
-		LC = calculate_LC(clearance, x, full_data['length'], 2)
+		LC = calculate_LC(clearance, x, full_data['length'], 1)
 		R_65 = conductor[x]['resistance']* full_data['length'] * (1 + 0.004 * (65-20) ) 
-		VR = calculate_VR(LC['L'], LC['C'], R_65, full_data['2'],full_data['power'],2, full_data['length'])
+		VR = calculate_VR(LC['L'], LC['C'], R_65, full_data['1'],full_data['power'],1, full_data['length'])
+		efficiency = calculate_efficiency(full_data['power'], full_data['1']['mev'], full_data['length'], 1, x)
+		print(f" {x}")
+		print(f"\tefficiency \t\t\t: {efficiency} %")
 		conductor[x]['VR'] = VR
-	print(conductor) 
+		print(f'\tVR \t\t\t\t: {VR} %')
+	print('='*80)
+
+
+	# print(conductor) 
 
 
 	
@@ -92,6 +99,7 @@ else:
 		LC = calculate_LC(clearance, x, full_data['length'], 2)
 		R_65 = conductor[x]['resistance']* full_data['length'] * (1 + 0.004 * (65-20) ) 
 		VR = calculate_VR(LC['L'], LC['C'], R_65, full_data['2'],full_data['power'],2, full_data['length'])
+		print(f' For {x} : {VR}')
 		conductor[x]['VR'] = VR
-	print(conductor) 
+	# print(conductor) 
 
