@@ -3,6 +3,7 @@ from conductor import conductor
 import math
 import cmath
 import turtle
+import numpy as np
 
 
 def calculate_mev(length, power, Nc):
@@ -152,7 +153,7 @@ def conductor_selection(Power, voltage,length, Nc, skip_conductor=[]):
         power_loss = (3 * current**2 * Nc * R_65) / 10**6
         efficiency = 1 - power_loss/Power
         if efficiency > 0.94:
-            print(f' The conductor selected according to efficiency is\t: {selected_conductor}')
+            print(f' The conductor selected according to efficiency is\t: {selected_conductor} with efficiency: {efficiency* 100} %')
             return {'selected_conductor':selected_conductor, 'R_65': R_65}
             break
         else:
@@ -290,6 +291,127 @@ def calculate_efficiency(Power, voltage,length, Nc,conductor_name):
     power_loss = (3 * current**2 * Nc * R_65) / 10**6
     efficiency = 1 - power_loss/Power
     return round(efficiency * 100, 2)
+
+
+def bending_moment(mev,span, Nc, Ne, conductor_name, y, d, area):
+    #print(f" Calculation for {conductor_name} conductor and span length {span}")
+    y = y/ 100
+    d = d/100
+    FS = 2
+    alpha = conductor[conductor_name]['alpha']
+
+    # For T1
+    t1 = conductor[conductor_name]['uts'] / FS # tension at toughest condition for power conductor
+    ww = conductor[conductor_name]['wp'] * 1000 * conductor[conductor_name]['diam'] * 10 ** (-3) * (2/3)
+    w1 = math.sqrt(conductor[conductor_name]['wc'] ** 2 + ww**2)
+    
+    #For T2
+    if area == '':
+        area = ((math.pi * conductor[conductor_name]['diam'] ** 2) /4) * 10 ** -6
+    else:
+        area = area * 10 ** -4
+
+    k1 = ((((w1 ** 2) * ((span/1000) ** 2)) / (24 * (t1 ** 2)) )+ alpha * 27) - (t1/(conductor[conductor_name]['ym'] * 10**4 * area))
+    k2 = k1 * conductor[conductor_name]['ym'] * 10**4 * area
+    k3 = ((conductor[conductor_name]['wc'] ** 2 * (span/1000) ** 2) / 24) * area * conductor[conductor_name]['ym'] * 10**4
+    coeffs = [1, k2, 0, -k3]
+    t2 = abs([x for x in np.roots(coeffs) if x.imag == 0][0])
+    
+    #For T3
+    k2_d = -t2 + alpha * (65-27) * area * conductor[conductor_name]['ym'] * 10 ** 4 + ((w1 ** 2 * (span/1000) ** 2) / (24 * t2 ** 2) * area * conductor[conductor_name]['ym'] *10**4)
+    coeffs = [1, k2_d, 0 , -k3]
+    t3 = abs([x for x in np.roots(coeffs) if x.imag == 0][0])
+
+    Dmax = ((conductor[conductor_name]['wc'] * (span * 0.5/1000)**2) / (2 * t3)) * 1000
+
+    ###############################
+
+    hg = ((mev * 1.1 - 33)/33 + 17) * 0.3048
+    h1 = hg + Dmax
+    if Nc == 1:
+        h2 = h1 + y/2
+        h3 = h2 + y/2
+        Ht = h3 + d
+    else:
+        h2 = h1 + y
+        h3 = h2 + y
+        Ht = h3 + d
+
+    # selection of earth wire
+    #For GUINEA
+
+    uts = 6664
+    T1ew = uts/2
+
+    dcrew = 14.6/1000
+
+    #Bending moment calculation
+
+    Fwp = (2/3) * (conductor[conductor_name]['diam']/1000) * span
+    
+    Fwp = Fwp * conductor[conductor_name]['wp']
+    
+    Fwe = (2/3) * dcrew * span
+    Fwe = Fwe * conductor[conductor_name]['wp']
+    
+    BMPw = Fwp * Nc * (h1 + h2 + h3)
+    BMEw = Fwe * Ne * Ht
+    
+    BMPt = 2 * t1 *( math.sin(math.radians(1)) * 0.8 + math.sin(math.radians(15/2)) * 0.15 + math.sin(math.radians(15))*0.05) * Nc * (h1+h2+h3)
+    BMPe = 2 * T1ew * ( math.sin(math.radians(1)) * 0.8 + math.sin(math.radians(15/2)) * 0.15 + math.sin(math.radians(15))*0.05)  * Nc * Ht
+
+    TBM = BMPw + BMEw + BMPt + BMPe 
+    # print('='*80)
+    # print(f" The value of T1 is {t1} kg")
+    # print(f" The value of T2 is {t2} kg")
+    # print(f" The value of T3 is {t3} kg\n")
+    # print(" Sag and Height of Tower calculation")
+    # print(f" Height of the lowest conductor h1 {h1} m")
+    # print(f" Height of the middle conductor h2 {h2} m")
+    # print(f" Height of the topmost conductor h3 {h3} m")
+    # print(f" Height of the tower {Ht}\n")
+    # print(" Earth Wire Selection")
+    # print(" Name of the earth wire: GUIENA")
+    # print(f" Number of earth wire: {Ne}")
+    # print(f" Maximum tension T1ew {T1ew} kg\n")
+    # print(" Bending Moment Calculation")
+    # print(f" Bending moment on tower due to wind force on power conductor BMPw: {BMPw} kg-m")
+    # print(f" Bending moment on tower due to wind force on earth conductor BMEw: {BMEw} kg-m")
+    # print(f" Bending moment on tower due to turning of power conductor BMPt: {BMPt} kg-m")
+    # print(f" Bending moment on tower due to turning of earth conductor BMPw: {BMPe} kg-m")
+    # print(f" The total bending moment TBM: {TBM} kg-m")
+    # print('='*80)
+    return {
+        'span': span,
+        't1': round(t1,2),
+        't2': round(t2,2),
+        't3': round(t3,2),
+        'h1': round(h1,2),
+        'h2': round(h2,2),
+        'h3': round(h3,2),
+        'Ne': Ne,
+        'T1ew': round(T1ew,2),
+        'BMPw': round(BMPw),
+        'BMEw': round(BMEw,2),
+        'BMPt': round(BMPt,2),
+        'BMPe': round(BMPe,2),
+        'TBM': round(TBM,2),
+        'conductor': conductor_name
+    }
+
+#bending_moment(132,250, 2, 2, 'zebra', 358,479,4.845)
+
+
+
+def print_tension(data):
+    print('_'*100)
+    print(f' Conductor: {data[0]["conductor"]}')
+    print(" SN\tSpan(m)\tt1(kg)\tt2(kg)\tt3(kg)\th1(m)\th2(m)\th3(m)\tT1ew(kg)\tBMPw(kg-m)\tBMEwkg-m)\tBMPtkg-m)\tBMPekg-m)\tTBMkg-m)")
+    for i in range(len(data)):
+        t = data[i]
+        print(" {}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t\t{}\t\t{}\t{}\t{}\t{}\t".format(i, t['span'], t['t1'], t['t2'], t['t3'], 
+        t['h1'], t['h2'], t['h3'], t['T1ew'], t['BMPw'], t['BMEw'], t['BMEw'],t['BMPt'], t['BMPe'],t['TBM']))
+
 
 
 def print_the_tower(obj):

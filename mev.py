@@ -40,6 +40,7 @@ if mf_margin_1 < mf_margin_2:
 	clearance = calculate_clearance(data, 1)
 	calculate_disc(full_data['1']['mev'])
 	not_selected = []
+	selected_conductor = ''
 	for key in conductor:
 		conductor_data = conductor_selection(full_data['power'], full_data['1']['mev'],full_data['length'], 1, not_selected)
 		if conductor_data['selected_conductor'] == None:
@@ -49,6 +50,7 @@ if mf_margin_1 < mf_margin_2:
 		VR = calculate_VR(LC['L'], LC['C'], conductor_data['R_65'], full_data['1'], full_data['power'], 1,full_data['length'])
 		if  VR < 12:
 			#print(f" The conductor rejected are {', '.join(not_selected)}")
+			selected_conductor = conductor_data['selected_conductor']
 			print(f" The conductor selected is\t\t\t\t: {conductor_data['selected_conductor']}")
 			print(f" The voltage regulation is\t\t\t\t: {VR} %")
 			break
@@ -56,7 +58,7 @@ if mf_margin_1 < mf_margin_2:
 			not_selected.append(conductor_data['selected_conductor'])
 	
 	#print the tower
-	print_the_tower(clearance)
+	#print_the_tower(clearance)
 	print('='*80)
 	for x in conductor:
 		LC = calculate_LC(clearance, x, full_data['length'], 1)
@@ -68,10 +70,10 @@ if mf_margin_1 < mf_margin_2:
 		conductor[x]['VR'] = VR
 		print(f'\tVR \t\t\t\t: {VR} %')
 	print('='*80)
-
-
-	# print(conductor) 
-
+	tension=[]
+	for x in [250,300,350,400,450]:
+		tension.append(bending_moment(full_data['1']['mev'], x, 1, 1, selected_conductor, clearance['d'], clearance['y'],conductor[selected_conductor]['area']))
+	print_tension(tension)
 
 	
 else:
@@ -81,6 +83,8 @@ else:
 	clearance = calculate_clearance(data, 2)
 	calculate_disc(full_data['2']['mev'])
 	not_selected = []
+	selected_conductor = ''
+	print('_'*100)
 	for key in conductor:
 		conductor_data = conductor_selection(full_data['power'], full_data['2']['mev'],full_data['length'], 2, not_selected)
 		if conductor_data['selected_conductor'] == None:
@@ -90,16 +94,20 @@ else:
 		VR = calculate_VR(LC['L'], LC['C'], conductor_data['R_65'], full_data['2'], full_data['power'], 2, full_data['length'])
 		if  VR < 12:
 			#print(f" The conductor rejected are {', '.join(not_selected)}")
+			selected_conductor = conductor_data['selected_conductor']
 			print(f" The conductor selected is\t\t\t\t: {conductor_data['selected_conductor']}")
 			print(f" The voltage regulation is\t\t\t\t: {VR} %")
 			break
 		else:
 			not_selected.append(conductor_data['selected_conductor'])
+	print('_'*100)
 	for x in conductor:
 		LC = calculate_LC(clearance, x, full_data['length'], 2)
 		R_65 = conductor[x]['resistance']* full_data['length'] * (1 + 0.004 * (65-20) ) 
 		VR = calculate_VR(LC['L'], LC['C'], R_65, full_data['2'],full_data['power'],2, full_data['length'])
 		print(f' For {x} : {VR}')
 		conductor[x]['VR'] = VR
-	# print(conductor) 
-
+	tension = []
+	for x in [250,275,300,325,400]:
+		tension.append(bending_moment(full_data['2']['mev'], x, 2, 2, selected_conductor, clearance['d'], clearance['y'],conductor[selected_conductor]['area']))
+	print_tension(tension)	
