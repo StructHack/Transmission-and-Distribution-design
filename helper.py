@@ -405,11 +405,16 @@ def bending_moment(mev,span, Nc, Ne, conductor_name, y, d, area):
 
 def print_tension(data):
     print('_'*100)
-    print(f' Conductor: {data[0]["conductor"]}')
-    print(" SN\tSpan(m)\tt1(kg)\tt2(kg)\tt3(kg)\th1(m)\th2(m)\th3(m)\tT1ew(kg)\tBMPw(kg-m)\tBMEwkg-m)\tBMPtkg-m)\tBMPekg-m)\tTBMkg-m)")
+    print(" SN\tSpan(m)\tt1(kg)\tt2(kg)\tt3(kg)\t\th1(m)\th2(m)\th3(m)\tT1ew(kg)\tBMPw(kg-m)\tBMEwkg-m)\tBMPtkg-m)\tBMPekg-m)\tTBMkg-m)")
+    prev = data[0]['conductor']
+    print(f"Conductor {data[0]['conductor']}")
     for i in range(len(data)):
+        if i != 0:
+            prev = data[i-1]["conductor"]
+        if( prev != data[i]["conductor"]):
+            print(f"Conductor {data[i]['conductor']}")
         t = data[i]
-        print(" {}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t\t{}\t\t{}\t{}\t{}\t{}\t".format(i, t['span'], t['t1'], t['t2'], t['t3'], 
+        print(" {:<3}\t{}\t{:<7}\t{:<7}\t{:<10}\t{:<7}\t{:<7}\t{:<7}\t{:<7}\t\t{:<7}\t\t{:<10}\t{:<10}\t{:<10}\t{:<7}\t".format(i, t['span'], t['t1'], t['t2'], t['t3'], 
         t['h1'], t['h2'], t['h3'], t['T1ew'], t['BMPw'], t['BMEw'], t['BMEw'],t['BMPt'], t['BMPe'],t['TBM']))
 
 

@@ -2,12 +2,25 @@ conductor = {
     "wolf":{
         "diam": 18.13,
         "resistance": 0.1871,
-        "current":329
+        "current":329,
+        "wp": 100,
+        "wc": 727,
+        "uts": 6865,
+        "ym": 686000,
+        "alpha": 17.76 * (10 ** -6),
+        "area": 1.94
     },
     "panther":{
         "diam": 21.00,
         "resistance": 0.1390,
-        "current":395
+        "current":395,
+        "wp": 100,
+        "wc": 976,
+        "uts": 9141,
+        "ym": 686000,
+        "alpha": 17.76 * (10 ** -6),
+        "area": 2.61
+
     },
     "kundah":{
         "diam": 26.88,
@@ -18,7 +31,7 @@ conductor = {
         "uts": 8879,
         "ym": 686000,
         "alpha": 17.76 * (10 ** -6),
-        "area": ''
+        "area": 4.252
     },
     "zebra":{
         "diam": 28.62,
@@ -39,11 +52,18 @@ conductor = {
         "wc": 1998,
         "uts": 15960,
         "ym": 686000,
+        "area": 5.97,
         "alpha": 17.76 * (10 ** -6)
     },
     "morculla":{
         "diam": 31.68,
         "resistance": 0.05231,
-        "current":688
+        "current":688,
+        "wp": 100,
+        "wc": 1781,
+        "uts": 12239,
+        "ym": 686000,
+        "area": 5.917,
+        "alpha": 17.76 * (10 ** -6)
     }
 }

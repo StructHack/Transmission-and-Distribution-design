@@ -71,8 +71,9 @@ if mf_margin_1 < mf_margin_2:
 		print(f'\tVR \t\t\t\t: {VR} %')
 	print('='*80)
 	tension=[]
-	for x in [250,300,350,400,450]:
-		tension.append(bending_moment(full_data['1']['mev'], x, 1, 1, selected_conductor, clearance['d'], clearance['y'],conductor[selected_conductor]['area']))
+	for con in conductor:
+		for x in [250,300,350,400,450]:
+			tension.append(bending_moment(full_data['1']['mev'], x, 1, 1, con, clearance['d'], clearance['y'],conductor[con]['area']))
 	print_tension(tension)
 
 	
@@ -108,6 +109,7 @@ else:
 		print(f' For {x} : {VR}')
 		conductor[x]['VR'] = VR
 	tension = []
-	for x in [250,275,300,325,400]:
-		tension.append(bending_moment(full_data['2']['mev'], x, 2, 2, selected_conductor, clearance['d'], clearance['y'],conductor[selected_conductor]['area']))
+	for con in conductor:
+		for x in [250,275,300,325,400]:
+			tension.append(bending_moment(full_data['2']['mev'], x, 2, 2, con, clearance['d'], clearance['y'],conductor[con]['area']))
 	print_tension(tension)	
