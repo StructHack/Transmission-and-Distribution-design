@@ -396,7 +396,10 @@ def bending_moment(mev,span, Nc, Ne, conductor_name, y, d, area):
         'BMPt': round(BMPt,2),
         'BMPe': round(BMPe,2),
         'TBM': round(TBM,2),
-        'conductor': conductor_name
+        'conductor': conductor_name,
+        'k1': k1,
+        'k2': k2,
+        'k3': k3
     }
 
 #bending_moment(132,250, 2, 2, 'zebra', 358,479,4.845)
