@@ -7,7 +7,7 @@ import numpy as np
 
 
 def calculate_mev(length, power, Nc):
-    standard_voltage = [33, 132, 220, 500, 765]
+    standard_voltage = [33, 66 ,132, 220, 500, 765]
     mev = 5.5 * ( (length/1.6) + (power*1000)/(150*Nc*0.9)   )**0.5
     standard_voltage.append(mev)
     standard_voltage.sort()
@@ -295,7 +295,7 @@ def calculate_efficiency(Power, voltage,length, Nc,conductor_name):
 
 def bending_moment(mev,span, Nc, Ne, conductor_name, y, d, area):
     #print(f" Calculation for {conductor_name} conductor and span length {span}")
-    y = y/ 100
+    y = y/100
     d = d/100
     FS = 2
     alpha = conductor[conductor_name]['alpha']
@@ -356,10 +356,8 @@ def bending_moment(mev,span, Nc, Ne, conductor_name, y, d, area):
     
     BMPw = Fwp * Nc * (h1 + h2 + h3)
     BMEw = Fwe * Ne * Ht
-    
     BMPt = 2 * t1 *( math.sin(math.radians(1)) * 0.8 + math.sin(math.radians(15/2)) * 0.15 + math.sin(math.radians(15))*0.05) * Nc * (h1+h2+h3)
     BMPe = 2 * T1ew * ( math.sin(math.radians(1)) * 0.8 + math.sin(math.radians(15/2)) * 0.15 + math.sin(math.radians(15))*0.05)  * Nc * Ht
-
     TBM = BMPw + BMEw + BMPt + BMPe 
     # print('='*80)
     # print(f" The value of T1 is {t1} kg")
@@ -418,7 +416,7 @@ def print_tension(data):
             print(f"Conductor {data[i]['conductor']}")
         t = data[i]
         print(" {:<3}\t{}\t{:<7}\t{:<7}\t{:<10}\t{:<7}\t{:<7}\t{:<7}\t{:<7}\t\t{:<7}\t\t{:<10}\t{:<10}\t{:<10}\t{:<7}\t".format(i, t['span'], t['t1'], t['t2'], t['t3'], 
-        t['h1'], t['h2'], t['h3'], t['T1ew'], t['BMPw'], t['BMEw'], t['BMEw'],t['BMPt'], t['BMPe'],t['TBM']))
+        t['h1'], t['h2'], t['h3'], t['T1ew'], t['BMPw'], t['BMEw'],t['BMPt'], t['BMPe'],t['TBM']))
 
 
 
