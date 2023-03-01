@@ -73,8 +73,9 @@ if mf_margin_1 < mf_margin_2:
 	tension=[]
 	for con in conductor:
 		for x in [250,275,300,325,400]:
-			tension.append(bending_moment(full_data['1']['mev'], x, 1, 1, con,  clearance['y'],clearance['d'],conductor[con]['area']))
+			tension.append(bending_moment(full_data['1']['mev'], x, 1, 1, con,  clearance['y'],clearance['d'],conductor[con]['area'], full_data['length'], full_data['power']))
 	print_tension(tension)
+	print_economic_data(tension)
 
 	
 else:
@@ -111,5 +112,7 @@ else:
 	tension = []
 	for con in conductor:
 		for x in [250,275,300,325,400]:
-			tension.append(bending_moment(full_data['2']['mev'], x, 2, 2, con, clearance['y'],clearance['d'],conductor[con]['area']))
+			tension.append(bending_moment(full_data['2']['mev'], x, 2, 2, con, clearance['y'],clearance['d'],conductor[con]['area'], full_data['length'], full_data['power']))
 	print_tension(tension)	
+	print_economic_data(tension)
+

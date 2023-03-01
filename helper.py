@@ -293,7 +293,7 @@ def calculate_efficiency(Power, voltage,length, Nc,conductor_name):
     return round(efficiency * 100, 2)
 
 
-def bending_moment(mev,span, Nc, Ne, conductor_name, y, d, area):
+def bending_moment(mev,span, Nc, Ne, conductor_name, y, d, area, length, power):
     #print(f" Calculation for {conductor_name} conductor and span length {span}")
     y = y/100
     d = d/100
@@ -333,6 +333,7 @@ def bending_moment(mev,span, Nc, Ne, conductor_name, y, d, area):
         h3 = h2 + y/2
         Ht = h3 + d
     else:
+        
         h2 = h1 + y
         h3 = h2 + y
         Ht = h3 + d
@@ -358,28 +359,13 @@ def bending_moment(mev,span, Nc, Ne, conductor_name, y, d, area):
     BMEw = Fwe * Ne * Ht
     BMPt = 2 * t1 *( math.sin(math.radians(1)) * 0.8 + math.sin(math.radians(15/2)) * 0.15 + math.sin(math.radians(15))*0.05) * Nc * (h1+h2+h3)
     BMPe = 2 * T1ew * ( math.sin(math.radians(1)) * 0.8 + math.sin(math.radians(15/2)) * 0.15 + math.sin(math.radians(15))*0.05)  * Nc * Ht
-    TBM = BMPw + BMEw + BMPt + BMPe 
-    # print('='*80)
-    # print(f" The value of T1 is {t1} kg")
-    # print(f" The value of T2 is {t2} kg")
-    # print(f" The value of T3 is {t3} kg\n")
-    # print(" Sag and Height of Tower calculation")
-    # print(f" Height of the lowest conductor h1 {h1} m")
-    # print(f" Height of the middle conductor h2 {h2} m")
-    # print(f" Height of the topmost conductor h3 {h3} m")
-    # print(f" Height of the tower {Ht}\n")
-    # print(" Earth Wire Selection")
-    # print(" Name of the earth wire: GUIENA")
-    # print(f" Number of earth wire: {Ne}")
-    # print(f" Maximum tension T1ew {T1ew} kg\n")
-    # print(" Bending Moment Calculation")
-    # print(f" Bending moment on tower due to wind force on power conductor BMPw: {BMPw} kg-m")
-    # print(f" Bending moment on tower due to wind force on earth conductor BMEw: {BMEw} kg-m")
-    # print(f" Bending moment on tower due to turning of power conductor BMPt: {BMPt} kg-m")
-    # print(f" Bending moment on tower due to turning of earth conductor BMPw: {BMPe} kg-m")
-    # print(f" The total bending moment TBM: {TBM} kg-m")
-    # print('='*80)
+    TBM = BMPw + BMEw + BMPt + BMPe
+    tower_weight = 0.000631 * Ht * math.sqrt(TBM * FS) 
+    No_tower = round(((length * 10 ** 3) / span) + 1)
+    Cost_per_tower = 150000 * tower_weight
+    Cost_per_length = 150000 * tower_weight * (No_tower / length)
     return {
+        'Nc': Nc,
         'span': span,
         't1': round(t1,2),
         't2': round(t2,2),
@@ -397,7 +383,14 @@ def bending_moment(mev,span, Nc, Ne, conductor_name, y, d, area):
         'conductor': conductor_name,
         'k1': k1,
         'k2': k2,
-        'k3': k3
+        'k3': k3,
+        'weight': round(tower_weight,4),
+        'num_tower': math.ceil(No_tower),
+        'cpt': round(Cost_per_tower,4),
+        'cpl': round(Cost_per_length,4),
+        'length': length,
+        'power': power,
+        'mev': mev
     }
 
 #bending_moment(132,250, 2, 2, 'zebra', 358,479,4.845)
@@ -418,7 +411,67 @@ def print_tension(data):
         print(" {:<3}\t{}\t{:<7}\t{:<7}\t{:<10}\t{:<7}\t{:<7}\t{:<7}\t{:<7}\t\t{:<7}\t\t{:<10}\t{:<10}\t{:<10}\t{:<7}\t".format(i, t['span'], t['t1'], t['t2'], t['t3'], 
         t['h1'], t['h2'], t['h3'], t['T1ew'], t['BMPw'], t['BMEw'],t['BMPt'], t['BMPe'],t['TBM']))
 
+def print_economic_data(data):
+    print('_'*100)
+    print(" SN\tSpan(m)\tweight(tonnes)\tTowers\tCost per Tower\tCost per length\tEco Span\tMin cost\tAnnual cost per km\t")
+    prev = data[0]['conductor']
+    print(f"COnductor {data[0]['conductor']}")
+    conductor_name = data[0]['conductor']
+    for i in range(len(data)):
+        if i != 0:
+            prev = data[i-1]["conductor"]
+        if( prev != data[i]["conductor"]):
+            print(f"Conductor {data[i]['conductor']}")
+        t = data[i]
+        conductor_name = t['conductor']
+        min_cost = []
+        for x in data:
+            if x['conductor'] == conductor_name:
+                min_cost.append({'span':x['span'], 'cpl':x['cpl']})
+        
+        span_eco = min_cost[0]['span']
+        cpl = min_cost[0]['cpl']
+        
+        for x in min_cost:
+            if(x['cpl'] < cpl):
+                cpl = x['cpl']
+                span_eco = x['span']
+            else:
+                continue
+        conductor[conductor_name]['span'] = span_eco
+        conductor[conductor_name]['cpl'] = cpl
 
+        min_cost = []
+
+
+        c_al = 20105
+        c_steel = 150000
+        wt_al = conductor[conductor_name]['wa']
+        wt_steel = conductor[conductor_name]['ws']
+        LF = 0.5
+        LLF = 0.2 * LF + 0.8 * LF ** 2
+        PU_cost = 7.5
+        n = 25 
+        rate = 0.1
+        Annuity_factor = (rate * (1+rate) ** n) / ((1+rate)**n - 1)
+        power_conductor_cost = (c_al * wt_al + c_steel * wt_steel) * data[i]['Nc'] * 3
+        Capital_cost = power_conductor_cost + conductor[conductor_name]['cpl']
+        # print(conductor_name, Capital_cost, Annuity_factor, power_conductor_cost)
+        Annual_cost = Annuity_factor * Capital_cost
+        R_65 = conductor[conductor_name]['resistance']  * (1 + 0.004 * (65-20) ) 
+
+        phase_angle = 0.9
+        I = (data[i]['power'] * 10**3) / (math.sqrt(3)*data[i]['mev']*phase_angle*data[i]['Nc'])
+
+
+        Power_loss = 3 * I**2 * R_65 * data[i]['Nc']
+        
+        Energy_loss_cost = Power_loss * LLF * 365 * 24 * 10 ** -3 * PU_cost
+        #print(conductor_name, power_conductor_cost)
+        TAC = round(Energy_loss_cost + Annual_cost,2)
+
+
+        print(" {:<3}\t{}\t{:<14}\t{:<7}\t{:<14}\t{:<14}\t{:<14}\t{:<14}\t{:<14}".format(i, t['span'], t['weight'], t['num_tower'], t['cpt'], t['cpl'],conductor[conductor_name]['span'] ,conductor[conductor_name]['cpl'],TAC))
 
 def print_the_tower(obj):
 
