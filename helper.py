@@ -250,7 +250,7 @@ def calculate_LC(clearance, conductor_name, length, Nc):
     C = (2 * math.pi * 8.854 * (10 ** -12) * 1000) / math.log(gmd['GMD']/gmr['GMR_C'])
     total_L = L * length
     total_C = C * length
-    return {'L': total_L, 'C': total_C}
+    return {'L': total_L, 'C': total_C, 'gmd':gmd, 'gmr': gmr}
 
 def calculate_VR(L, C, R, full_data, power, Nc, length):
     Xl = 2 * math.pi * 50 * L 
@@ -278,7 +278,7 @@ def calculate_VR(L, C, R, full_data, power, Nc, length):
     Vr_fl = full_data['mev'] / math.sqrt(3)
     VR = (abs(Vs_fl)/abs(A) - Vr_fl)/Vr_fl
     VR = VR * 100
-    return round(VR,3)
+    return {'VR':VR, 'A':A, 'B':B, 'C':C, 'D':D}
 
 def calculate_efficiency(Power, voltage,length, Nc,conductor_name):
     phase_angle = 0.9
@@ -340,7 +340,7 @@ def bending_moment(mev,span, Nc, Ne, conductor_name, y, d, area, length, power):
 
     # selection of earth wire
     #For GUINEA
-
+    # print(conductor_name, Ht, Dmax,)
     uts = 6664
     T1ew = uts/2
 
@@ -472,6 +472,16 @@ def print_economic_data(data):
 
 
         print(" {:<3}\t{}\t{:<10}\t{:<7}\t{:<10}\t{:<10}\t{}\t{:<10}\t{:<10}\t{:<10}\t{:<10}\t{:<10}\t{:<10}".format(i, t['span'], t['weight'], t['num_tower'], t['cpt'], t['cpl'],conductor[conductor_name]['span'],conductor[conductor_name]['cpl'],round(Capital_cost,2),round(power_conductor_cost,2),round(Power_loss,2), round(Energy_loss_cost,2) ,TAC))
+
+def final_op(clearance, conductor_name, length, Nc, power, full_data,mev):
+    diam = conductor[conductor_name]['diam']
+    R_20 = conductor[conductor_name]['resistance'] 
+    R_65 = R_20 * (1 + 0.004 * (65-20) ) * length
+    LC = calculate_LC(clearance, conductor_name, 1, Nc)
+    ABCD = calculate_VR(LC['L'], LC['C'], R_65, full_data, power, Nc, length)
+    efficiency = calculate_efficiency(power, mev,length, Nc,conductor_name)
+    # print(LC)
+
 
 def print_the_tower(obj):
 

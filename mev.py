@@ -47,7 +47,7 @@ if mf_margin_1 < mf_margin_2:
 			print(' No conductor was fit for the line, bundling should be done')
 			break
 		LC = calculate_LC(clearance, conductor_data['selected_conductor'], full_data['length'], 1)	
-		VR = calculate_VR(LC['L'], LC['C'], conductor_data['R_65'], full_data['1'], full_data['power'], 1,full_data['length'])
+		VR = calculate_VR(LC['L'], LC['C'], conductor_data['R_65'], full_data['1'], full_data['power'], 1,full_data['length'])['VR']
 		if  VR < 12:
 			#print(f" The conductor rejected are {', '.join(not_selected)}")
 			selected_conductor = conductor_data['selected_conductor']
@@ -63,7 +63,7 @@ if mf_margin_1 < mf_margin_2:
 	for x in conductor:
 		LC = calculate_LC(clearance, x, full_data['length'], 1)
 		R_65 = conductor[x]['resistance']* full_data['length'] * (1 + 0.004 * (65-20) ) 
-		VR = calculate_VR(LC['L'], LC['C'], R_65, full_data['1'],full_data['power'],1, full_data['length'])
+		VR = calculate_VR(LC['L'], LC['C'], R_65, full_data['1'],full_data['power'],1, full_data['length'])['VR']
 		efficiency = calculate_efficiency(full_data['power'], full_data['1']['mev'], full_data['length'], 1, x)
 		print(f" {x}")
 		print(f"\tefficiency \t\t\t: {efficiency} %")
@@ -76,6 +76,8 @@ if mf_margin_1 < mf_margin_2:
 			tension.append(bending_moment(full_data['1']['mev'], x, 1, 1, con,  clearance['y'],clearance['d'],conductor[con]['area'], full_data['length'], full_data['power']))
 	print_tension(tension)
 	print_economic_data(tension)
+	final_op(clearance, "morculla", full_data['length'], 1, full_data['power'], full_data['1'])
+
 
 	
 else:
@@ -93,7 +95,7 @@ else:
 			print(' No conductor was fit for the line, bundling should be done')
 			break
 		LC = calculate_LC(clearance, conductor_data['selected_conductor'], full_data['length'], 2)	
-		VR = calculate_VR(LC['L'], LC['C'], conductor_data['R_65'], full_data['2'], full_data['power'], 2, full_data['length'])
+		VR = calculate_VR(LC['L'], LC['C'], conductor_data['R_65'], full_data['2'], full_data['power'], 2, full_data['length'])['VR']
 		if  VR < 12:
 			#print(f" The conductor rejected are {', '.join(not_selected)}")
 			selected_conductor = conductor_data['selected_conductor']
@@ -106,7 +108,7 @@ else:
 	for x in conductor:
 		LC = calculate_LC(clearance, x, full_data['length'], 2)
 		R_65 = conductor[x]['resistance']* full_data['length'] * (1 + 0.004 * (65-20) ) 
-		VR = calculate_VR(LC['L'], LC['C'], R_65, full_data['2'],full_data['power'],2, full_data['length'])
+		VR = calculate_VR(LC['L'], LC['C'], R_65, full_data['2'],full_data['power'],2, full_data['length'])['VR']
 		print(f' For {x} : {VR}')
 		conductor[x]['VR'] = VR
 	tension = []
@@ -115,4 +117,5 @@ else:
 			tension.append(bending_moment(full_data['2']['mev'], x, 2, 2, con, clearance['y'],clearance['d'],conductor[con]['area'], full_data['length'], full_data['power']))
 	print_tension(tension)	
 	print_economic_data(tension)
+	final_op(clearance, "morculla", full_data['length'], 2, full_data['power'], full_data['2'], full_data['2']['mev'])
 
