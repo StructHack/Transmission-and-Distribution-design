@@ -413,7 +413,7 @@ def print_tension(data):
 
 def print_economic_data(data):
     print('_'*100)
-    print(" SN\tSpan(m)\tweight(tonnes)\tTowers\tCost per Tower\tCost per length\tEco Span\tMin cost\tAnnual cost per km\t")
+    print(" SN\tSpan(m)\tweight(tonnes)\tTowers\tCost per Tower\tCost/length\tESpan\tMin cost\tCapitalCost\tConductorcost\tPowerloss\tEloss\t\tAnnual cost per km\t")
     prev = data[0]['conductor']
     print(f"COnductor {data[0]['conductor']}")
     conductor_name = data[0]['conductor']
@@ -464,14 +464,14 @@ def print_economic_data(data):
         I = (data[i]['power'] * 10**3) / (math.sqrt(3)*data[i]['mev']*phase_angle*data[i]['Nc'])
 
 
-        Power_loss = 3 * I**2 * R_65 * data[i]['Nc']
+        Power_loss = round(3 * I**2 * R_65 * data[i]['Nc'],3)
         
         Energy_loss_cost = Power_loss * LLF * 365 * 24 * 10 ** -3 * PU_cost
         #print(conductor_name, power_conductor_cost)
         TAC = round(Energy_loss_cost + Annual_cost,2)
 
 
-        print(" {:<3}\t{}\t{:<14}\t{:<7}\t{:<14}\t{:<14}\t{:<14}\t{:<14}\t{:<14}".format(i, t['span'], t['weight'], t['num_tower'], t['cpt'], t['cpl'],conductor[conductor_name]['span'] ,conductor[conductor_name]['cpl'],TAC))
+        print(" {:<3}\t{}\t{:<10}\t{:<7}\t{:<10}\t{:<10}\t{}\t{:<10}\t{:<10}\t{:<10}\t{:<10}\t{:<10}\t{:<10}".format(i, t['span'], t['weight'], t['num_tower'], t['cpt'], t['cpl'],conductor[conductor_name]['span'],conductor[conductor_name]['cpl'],round(Capital_cost,2),round(power_conductor_cost,2),round(Power_loss,2), round(Energy_loss_cost,2) ,TAC))
 
 def print_the_tower(obj):
 
